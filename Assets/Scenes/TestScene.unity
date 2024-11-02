@@ -424,7 +424,6 @@ GameObject:
   - component: {fileID: 970359514}
   - component: {fileID: 970359517}
   - component: {fileID: 970359516}
-  - component: {fileID: 970359515}
   m_Layer: 0
   m_Name: DraghandTester
   m_TagString: Untagged
@@ -454,28 +453,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1080, y: 1980}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &970359515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 970359513}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d51923aa650d1cb4d8bc95069f4a72af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enableAutoPrompt: 1
-  handPromptImage: {fileID: 1056356845}
-  idleTimeThreshold: 5
-  animationDuration: 1.5
-  verticalDistance: 1000
-  curveOffset: 0
-  handRectTransform: {fileID: 0}
-  startPosition: {x: 0, y: 0}
-  endPosition: {x: 0, y: 0}
-  isAnimating: 0
 --- !u!114 &970359516
 MonoBehaviour:
   m_ObjectHideFlags: 0
