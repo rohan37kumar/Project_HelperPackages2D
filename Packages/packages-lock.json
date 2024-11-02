@@ -1,5 +1,23 @@
 {
   "dependencies": {
+    "com.ezygamers.cmsv1": {
+      "version": "file:com.ezygamers.CMSv1",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.ezygamers.dragndropv1": {
+      "version": "file:com.ezygamers.DragnDropv1",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.ezygamers.objectmovementprompt": {
+      "version": "file:com.ezygamers.ObjectMovementPrompt",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.2d.animation": {
       "version": "9.1.1",
       "depth": 1,

@@ -335,6 +335,7 @@ GameObject:
   - component: {fileID: 888258326}
   - component: {fileID: 888258328}
   - component: {fileID: 888258327}
+  - component: {fileID: 888258329}
   m_Layer: 0
   m_Name: DownImage
   m_TagString: Untagged
@@ -399,6 +400,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 888258325}
   m_CullTransparentMesh: 1
+--- !u!114 &888258329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888258325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ccdbd541501b0a419b701e7a033d74a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isUI: 1
 --- !u!1 &970359513
 GameObject:
   m_ObjectHideFlags: 0
@@ -449,7 +463,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 970359513}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0036bdaece36ed54f8d6bb97221c42a4, type: 3}
+  m_Script: {fileID: 11500000, guid: d51923aa650d1cb4d8bc95069f4a72af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enableAutoPrompt: 1
@@ -458,6 +472,10 @@ MonoBehaviour:
   animationDuration: 1.5
   verticalDistance: 1000
   curveOffset: 0
+  handRectTransform: {fileID: 0}
+  startPosition: {x: 0, y: 0}
+  endPosition: {x: 0, y: 0}
+  isAnimating: 0
 --- !u!114 &970359516
 MonoBehaviour:
   m_ObjectHideFlags: 0
