@@ -1,0 +1,12 @@
+{
+  "name": "com.ezygamers.objectmovementprompt",
+  "version": "1.1.5",
+  "displayName": "com.ezygamers.objectmovementprompt",
+  "description": "Uses LeanTween Library to create specific use case Animations",
+  "unity": "2022.3",
+  "unityRelease": "33f1",
+  "author": {
+    "name": "Rohan Kumar",
+    "email": "rohan37kumar@gmail.com"
+  }
+}

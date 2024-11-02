@@ -1,0 +1,14 @@
+{
+    "name": "com.ezygamers.dragndropv1",
+    "rootNamespace": "com.ezygamers.dragndropv1",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

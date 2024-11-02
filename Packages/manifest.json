@@ -1,8 +1,5 @@
 {
   "dependencies": {
-    "com.ezygamers.cmsv1": "file:com.ezygamers.CMSv1",
-    "com.ezygamers.dragndropv1": "file:com.ezygamers.DragnDropv1",
-    "com.ezygamers.objectmovementprompt": "file:com.ezygamers.ObjectMovementPrompt",
     "com.unity.collab-proxy": "2.5.2",
     "com.unity.feature.2d": "2.0.1",
     "com.unity.ide.rider": "3.0.28",
