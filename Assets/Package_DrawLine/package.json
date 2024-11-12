@@ -1,0 +1,13 @@
+{
+  "name": "com.ezygamers.linedrawnmanagerv1",
+  "version": "1.0.1",
+  "displayName": "com.ezygamers.LineDrawManager",
+  "description": "this package hepls in creating Line connecting pattern using Unity's Line renderer",
+  "unity": "2022.3",
+  "unityRelease": "33f1",
+
+  "author": {
+    "name": "Rohan Kumar",
+    "email": "rohan37kumar@gmail.com"
+  }
+}

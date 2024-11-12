@@ -22,7 +22,7 @@ namespace ezygamers.dragndropv1
         public UIElementDrag(RectTransform rectTransform, CanvasGroup canvasGroup)
         {
             this.rectTransform = (rectTransform);
-            this.canvasGroup = canvasGroup;
+            this.canvasGroup = canvasGroup; 
             originalPosition = rectTransform.localPosition;
 
             // Get reference to the parent canvas and camera, to make the dragged object visible
@@ -38,6 +38,7 @@ namespace ezygamers.dragndropv1
         public void OnPointerDown(PointerEventData eventData)
         {
             isPointerDown = true;
+            Actions.gotInput?.Invoke();
             Actions.onDragHighlight?.Invoke();
             rectTransform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
         }

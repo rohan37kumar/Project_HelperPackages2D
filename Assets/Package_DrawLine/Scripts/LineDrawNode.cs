@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PatternNode : MonoBehaviour
+public class LineDrawNode : MonoBehaviour
 {
     public int nodeID; // Unique identifier for this node
     public string nodeValue; //The value each node holds

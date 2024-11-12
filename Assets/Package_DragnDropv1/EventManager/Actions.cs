@@ -4,6 +4,7 @@ using UnityEngine;
 public static class Actions
 {
     public static Action<String> answercheck;
+    public static Action gotInput;
     public static Action onDrag;
     public static Action onDragHighlight;
     public static Action onDragRemoveHighlight;

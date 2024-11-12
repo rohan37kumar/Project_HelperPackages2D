@@ -16,9 +16,8 @@ namespace ezygamers.cmsv1
         public AudioContent questionAudio; //audio
 
         [Header("Options Data")]
-        public List<ImageOption> imageOptions = new List<ImageOption>(); //images for questions
+        public List<OptionGeneric> options = new List<OptionGeneric>(); //options with all fields
 
-        //TODO:  
         [Header("Correct Answer")]
         public string correctOptionID;
 
