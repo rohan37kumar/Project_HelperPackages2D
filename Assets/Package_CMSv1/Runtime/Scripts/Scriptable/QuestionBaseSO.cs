@@ -8,6 +8,7 @@ namespace ezygamers.cmsv1
     public class QuestionBaseSO : ScriptableObject
     {
         public int questionNo;
+        public string questionInfo;
 
         [Header("Question Content")]
         public TextContent questionText; //ul
@@ -34,7 +35,8 @@ namespace ezygamers.cmsv1
         FourImageOpt,
         TwoWordOpt,
         FourWordOpt,
-        AudioOpt
+        AudioOpt,
+        LineQuestion
     }
     public enum DifficultyLevel
     {
