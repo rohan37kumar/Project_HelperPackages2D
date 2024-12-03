@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,6 +31,8 @@ public class PuzzleScript : MonoBehaviour
     public void QuestionSolved()
     {
         questionImageHolder.sprite = solvedImage;
+        //SpriteRenderer spriteRenderer = answerImageHolder.GetComponent<SpriteRenderer>();
+        //spriteRenderer.sprite = happyDoodle;
         AnimateWalking();
         LeanTween.move(answerImageHolder.gameObject, targetPosition, 2f).setEase(LeanTweenType.easeInOutQuad);
 
