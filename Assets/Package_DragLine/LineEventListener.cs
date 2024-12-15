@@ -4,20 +4,20 @@ using UnityEngine;
 
 public class LineEventListener : MonoBehaviour
 {
-    [SerializeField] private DraggingLine draggingLine;
+    
 
     private void OnEnable()
     {
-        draggingLine.OnLineStarted += HandleLineStarted;
-        draggingLine.OnLineEnded += HandleLineEnded;
-        draggingLine.OnLineUpdated += HandleLineUpdated;
+        LineActions.OnLineStarted += HandleLineStarted;
+        LineActions.OnLineEnded += HandleLineEnded;
+        
     }
 
     private void OnDisable()
     {
-        draggingLine.OnLineStarted -= HandleLineStarted;
-        draggingLine.OnLineEnded -= HandleLineEnded;
-        draggingLine.OnLineUpdated -= HandleLineUpdated;
+        LineActions.OnLineStarted -= HandleLineStarted;
+        LineActions.OnLineEnded -= HandleLineEnded;
+       
     }
 
     private void HandleLineStarted()
@@ -25,7 +25,7 @@ public class LineEventListener : MonoBehaviour
         Debug.Log("Line drawing started!");
     }
 
-    private void HandleLineEnded()
+    private void HandleLineEnded(string output)
     {
         Debug.Log("Line drawing ended!");
     }
