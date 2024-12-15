@@ -1,0 +1,13 @@
+{
+    "name": "com.adityababar08.line_dragging_plugin",
+    "version": "1.0.0",
+    "displayName": "Dragging_Line_Plugin",
+    "description": "",
+    "unity": "2021.3",
+    "unityRelease": "0f1",
+    "author": {
+      "name": "Aditya Babar",
+      "email": "babaraditya02@gmail.com"
+      
+    }
+}
