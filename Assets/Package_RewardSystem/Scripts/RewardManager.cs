@@ -1,86 +1,164 @@
-using System;
+using RewardSystem;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace RewardSystem
 {
+    /// <summary>
+    /// Manages all rewards, including level-based rewards and daily login rewards.
+    /// </summary>
     public class RewardManager : MonoBehaviour
     {
-        [Header("Rewards")]
-        [SerializeField] private List<Reward> rewards; // All available rewards in the game
+        /// <summary>
+        /// Singleton instance to ensure only one RewardManager exists.
+        /// </summary>
+        public static RewardManager Instance;
 
-        // Keys for PlayerPrefs
-        private const string LastDailyClaimKey = "RS_LastDailyRewardClaim";
-        private const string LastWeeklyClaimKey = "RS_LastWeeklyRewardClaim";
-
-        public event Action<Reward> OnRewardClaimed; // Event to notify when a reward is claimed
+        [Header("Reward Configuration")]
+        [Tooltip("Configuration data for level and daily rewards.")]
+        public RewardConfig rewardConfig;
 
         /// <summary>
-        /// Checks if a daily reward can be claimed.
+        /// Tracks levels whose rewards have already been claimed to prevent duplicate claims.
         /// </summary>
-        public bool IsDailyRewardAvailable()
-        {
-            string lastClaimDate = PlayerPrefs.GetString(LastDailyClaimKey, "");
-            if (string.IsNullOrEmpty(lastClaimDate)) return true;
-
-            DateTime lastClaim = DateTime.Parse(lastClaimDate);
-            return DateTime.Now.Date > lastClaim.Date;
-        }
+        private HashSet<int> claimedLevels = new HashSet<int>();
 
         /// <summary>
-        /// Checks if a weekly reward can be claimed.
+        /// Tracks the current day for daily login rewards.
         /// </summary>
-        public bool IsWeeklyRewardAvailable()
-        {
-            string lastClaimDate = PlayerPrefs.GetString(LastWeeklyClaimKey, "");
-            if (string.IsNullOrEmpty(lastClaimDate)) return true;
-
-            DateTime lastClaim = DateTime.Parse(lastClaimDate);
-            return (DateTime.Now - lastClaim).Days >= 7;
-        }
+        private int dailyLoginDay = 0;
 
         /// <summary>
-        /// Claims a daily reward if available.
+        /// Ensures a singleton instance of RewardManager persists across scenes.
         /// </summary>
-        public bool ClaimDailyReward()
+        private void Awake()
         {
-            if (!IsDailyRewardAvailable()) return false;
-
-            Reward dailyReward = rewards.Find(r => r.type == Reward.RewardType.Daily);
-            if (dailyReward != null)
+            if (Instance == null)
             {
-                GrantReward(dailyReward);
-                PlayerPrefs.SetString(LastDailyClaimKey, DateTime.Now.ToString());
-                PlayerPrefs.Save();
+                Instance = this;
+                DontDestroyOnLoad(gameObject); // Make this object persistent across scenes.
             }
-            return true;
-        }
-
-        /// <summary>
-        /// Claims a weekly reward if available.
-        /// </summary>
-        public bool ClaimWeeklyReward()
-        {
-            if (!IsWeeklyRewardAvailable()) return false;
-
-            Reward weeklyReward = rewards.Find(r => r.type == Reward.RewardType.Weekly);
-            if (weeklyReward != null)
+            else
             {
-                GrantReward(weeklyReward);
-                PlayerPrefs.SetString(LastWeeklyClaimKey, DateTime.Now.ToString());
-                PlayerPrefs.Save();
+                Destroy(gameObject); // Destroy duplicate instances.
             }
-            return true;
+        }
+
+        #region Level Rewards
+
+        /// <summary>
+        /// Retrieves the reward for a specific level.
+        /// </summary>
+        /// <param name="level">The level for which to fetch the reward.</param>
+        /// <returns>The reward for the specified level, or null if no reward exists.</returns>
+        public Reward GetLevelReward(int level)
+        {
+            foreach (var lr in rewardConfig.levelRewards)
+            {
+                if (lr.level == level)
+                    return lr.reward;
+            }
+            return null; // Return null if no reward is configured for the specified level.
         }
 
         /// <summary>
-        /// Grants a reward to the player.
+        /// Claims the reward for a specified level if it hasn't been claimed already.
         /// </summary>
-        private void GrantReward(Reward reward)
+        /// <param name="level">The level for which to claim the reward.</param>
+        /// <returns>True if the reward is successfully claimed, false otherwise.</returns>
+        public bool ClaimLevelReward(int level)
         {
-            // Notify the game about the granted reward
-            OnRewardClaimed?.Invoke(reward);
-            Debug.Log($"Reward granted: {reward.rewardName} ({reward.value})");
+            // Check if the reward has already been claimed.
+            if (claimedLevels.Contains(level))
+            {
+                Debug.Log($"Level {level} reward already claimed.");
+                return false;
+            }
+
+            // Fetch the reward for the specified level.
+            Reward reward = GetLevelReward(level);
+            if (reward != null)
+            {
+                // Deliver the reward to the player and mark it as claimed.
+                GiveReward(reward);
+                claimedLevels.Add(level);
+                Debug.Log($"Level {level} Reward Claimed: {reward}");
+                return true;
+            }
+
+            Debug.Log($"No reward found for Level {level}.");
+            return false; // No reward exists for the specified level.
         }
+
+        #endregion
+
+        #region Daily Rewards
+
+        /// <summary>
+        /// Retrieves the daily reward for the current login day.
+        /// </summary>
+        /// <returns>The daily reward, or null if no more rewards are available.</returns>
+        public Reward GetDailyReward()
+        {
+            // Check if there are still daily rewards left in the reward configuration.
+            if (dailyLoginDay < rewardConfig.dailyRewards.Count)
+                return rewardConfig.dailyRewards[dailyLoginDay];
+
+            Debug.Log("No more daily rewards available.");
+            return null; // No rewards left for the remaining days.
+        }
+
+        /// <summary>
+        /// Claims the daily reward for the current login day.
+        /// </summary>
+        public void ClaimDailyReward()
+        {
+            // Retrieve the daily reward for the current day.
+            Reward reward = GetDailyReward();
+            if (reward != null)
+            {
+                // Deliver the reward to the player and increment the day counter.
+                GiveReward(reward);
+                dailyLoginDay++;
+                Debug.Log($"Daily Reward Claimed: {reward}");
+            }
+            else
+            {
+                Debug.Log("No daily reward to claim.");
+            }
+        }
+
+        #endregion
+
+        #region Reward Delivery
+
+        /// <summary>
+        /// Handles the delivery of rewards to the player based on the reward type.
+        /// </summary>
+        /// <param name="reward">The reward to be given to the player.</param>
+        private void GiveReward(Reward reward)
+        {
+            // Switch based on the type of reward and log the reward details.
+            switch (reward.type)
+            {
+                case Reward.RewardType.Coins:
+                    Debug.Log($"Player received {reward.quantity} Coins.");
+                    break;
+                case Reward.RewardType.Gems:
+                    Debug.Log($"Player received {reward.quantity} Gems.");
+                    break;
+                case Reward.RewardType.Item:
+                    Debug.Log($"Player received Item: {reward.rewardID}");
+                    break;
+                case Reward.RewardType.Experience:
+                    Debug.Log($"Player gained {reward.quantity} XP.");
+                    break;
+                case Reward.RewardType.Custom:
+                    Debug.Log($"Custom reward received: {reward.customData}");
+                    break;
+            }
+        }
+
+        #endregion
     }
 }

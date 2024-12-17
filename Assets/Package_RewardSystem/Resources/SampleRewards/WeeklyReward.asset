@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e452647ebb2488a4286ffb83dcea8eb6, type: 3}
   m_Name: WeeklyReward
   m_EditorClassIdentifier: 
-  rewardName: WeeklyReward
+  rewardID: 1
   description: 
-  value: 1000
+  quantity: 100
   icon: {fileID: 0}
   type: 1
+  rewardDelivery: 1
+  customData: 

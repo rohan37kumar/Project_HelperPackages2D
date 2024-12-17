@@ -1,52 +1,61 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using RewardSystem;
 
-namespace RewardSystem
+public class RewardUI : MonoBehaviour
 {
-    public class RewardUI : MonoBehaviour
+    [Header("UI Elements")]
+    public Button levelRewardButton;
+    public Button dailyRewardButton;
+    public InputField levelInput;
+
+    public TextMeshProUGUI rewardDetailsText; // Text to display reward info (requires TextMeshPro)
+
+    private void Start()
     {
-        [Header("References")]
-        [SerializeField] private RewardManager rewardManager;
-        [SerializeField] private Button dailyRewardButton;
-        [SerializeField] private Button weeklyRewardButton;
-        [SerializeField] private Text dailyRewardStatusText;
-        [SerializeField] private Text weeklyRewardStatusText;
+        levelRewardButton.onClick.AddListener(ClaimLevelReward);
+        dailyRewardButton.onClick.AddListener(ClaimDailyReward);
+        UpdateRewardDisplay(""); // Clear the text initially
+    }
 
-        private void Start()
+    void ClaimLevelReward()
+    {
+        if (int.TryParse(levelInput.text, out int level))
         {
-            // Attach button listeners
-            dailyRewardButton.onClick.AddListener(() =>
+            Reward reward = RewardManager.Instance.GetLevelReward(level);
+            if (reward != null)
             {
-                if (rewardManager.ClaimDailyReward())
-                {
-                    UpdateUI();
-                }
-            });
-
-            weeklyRewardButton.onClick.AddListener(() =>
+                RewardManager.Instance.ClaimLevelReward(level);
+                UpdateRewardDisplay($"Level {level} Reward: {reward.type} x {reward.quantity}");
+            }
+            else
             {
-                if (rewardManager.ClaimWeeklyReward())
-                {
-                    UpdateUI();
-                }
-            });
-
-            UpdateUI();
+                UpdateRewardDisplay($"No reward found for Level {level}");
+            }
         }
-
-        private void UpdateUI()
+        else
         {
-            // Update daily reward button and text
-            dailyRewardButton.interactable = rewardManager.IsDailyRewardAvailable();
-            dailyRewardStatusText.text = rewardManager.IsDailyRewardAvailable()
-                ? "Daily reward available!"
-                : "Daily reward already claimed.";
-
-            // Update weekly reward button and text
-            weeklyRewardButton.interactable = rewardManager.IsWeeklyRewardAvailable();
-            weeklyRewardStatusText.text = rewardManager.IsWeeklyRewardAvailable()
-                ? "Weekly reward available!"
-                : "Weekly reward already claimed.";
+            UpdateRewardDisplay("Invalid Level Input.");
         }
+    }
+
+    void ClaimDailyReward()
+    {
+        Reward reward = RewardManager.Instance.GetDailyReward();
+        if (reward != null)
+        {
+            RewardManager.Instance.ClaimDailyReward();
+            UpdateRewardDisplay($"Daily Reward: {reward.type} x {reward.quantity}");
+        }
+        else
+        {
+            UpdateRewardDisplay("No daily reward available.");
+        }
+    }
+
+    void UpdateRewardDisplay(string message)
+    {
+        rewardDetailsText.text = message;
     }
 }
