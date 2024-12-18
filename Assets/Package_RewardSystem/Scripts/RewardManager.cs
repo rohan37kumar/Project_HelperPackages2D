@@ -25,10 +25,10 @@ namespace RewardSystem
         /// </summary>
         private HashSet<int> claimedLevels = new HashSet<int>();
 
-        /// <summary>
-        /// Tracks the current day for daily login rewards.
-        /// </summary>
+        private int dailyRewardIndex;
+
         public static event Action<int, Reward> OnRewardClaimed;
+        public static event Action<int, Reward> OnDailyRewardClaimed;
 
         /// <summary>
         /// Ensures a singleton instance of RewardManager persists across scenes.
@@ -46,11 +46,26 @@ namespace RewardSystem
             }
         }
 
+        private void Start()
+        {
+            dailyRewardIndex = PlayerProgressManager.GetDailyRewardIndex();
+        }
+
+
+        public void DeliverRewardToPlayer(Reward reward)
+        {
+            switch (reward.type) //Claim it to player depending on type
+            {
+                case Reward.RewardType.Coins: PlayerProgressManager.UpdateCoins(reward.quantity); break;
+                case Reward.RewardType.Gems: PlayerProgressManager.UpdateGems(reward.quantity); break;
+                case Reward.RewardType.Experience: PlayerProgressManager.UpdateExperience(reward.quantity); break;
+            }
+        }
+
+        #region Level Rewards
         public Reward FetchLevelReward(int level)
         {
-            Reward reward = rewardConfig.levelRewards[level].reward;
-
-            return reward;
+            return rewardConfig.levelRewards[level].reward; 
         }
 
         public void ClaimLevelReward(int level)
@@ -61,28 +76,80 @@ namespace RewardSystem
                 return; 
             }
             Reward reward = FetchLevelReward(level); //fetch the reward
-            switch(reward.type) //Claim it to player depending on type
-            {
-                case Reward.RewardType.Coins: PlayerProgressManager.UpdateCoins(reward.quantity); break;
-                case Reward.RewardType.Gems: PlayerProgressManager.UpdateGems(reward.quantity); break;
-                case Reward.RewardType.Experience: PlayerProgressManager.UpdateExperience(reward.quantity); break;
-            }
+            DeliverRewardToPlayer(reward);
             claimedLevels.Add(level);
-
             OnRewardClaimed?.Invoke(level, reward);
             
         }
 
         public bool IsLevelRewardClaimed(int level)
         {
-            //check if reward is available
+            //check if reward is already claimed
             return claimedLevels.Contains(level); 
         }
 
-        public bool IsRewardAvailable()
+        #endregion
+
+        #region DailyRewards
+
+        public Reward FetchDailyReward(int index)
         {
-            //This function should be able to check the availability of any type of reward
+            int loopedIndex = index % rewardConfig.dailyRewards.Count; // Loop back to start
+            return rewardConfig.dailyRewards[loopedIndex];
+        }
+
+
+        public void ClaimDailyReward()
+        {
+            if (!IsDailyRewardAvailable())
+            {
+                Debug.Log("Reward for this Day is claimed");
+                return; 
+            }
+            Reward reward = FetchDailyReward(dailyRewardIndex);
+            DeliverRewardToPlayer(reward);
+            PlayerProgressManager.SetLastRewardClaimedDateTime(DateTime.Now);
+            PlayerProgressManager.SetDailyRewardIndex(++dailyRewardIndex);
+            OnDailyRewardClaimed?.Invoke(dailyRewardIndex, reward);
+        }
+
+
+
+        public bool IsDailyRewardAvailable()
+        {
+            if (!PlayerProgressManager.HasLastRewardClaimedDateTime())
+            {
+                // First time login or no prior claim
+                return true;
+            }
+
+            DateTime currentDateTime = DateTime.Now;
+            DateTime lastRewardClaimedDateTime = DateTime.Parse(PlayerProgressManager.GetLastRewardClaimedDateTime());
+
+            Double elapsedTime = (currentDateTime - lastRewardClaimedDateTime).TotalDays;
+
+            if (elapsedTime >= rewardConfig.rewardDelay)
+            {
+                
+                return true;
+            }
+
             return false;
+        }
+
+        #endregion
+
+
+        public void ResetAllRewards()
+        {
+            // Reset PlayerPrefs
+            PlayerPrefs.DeleteAll();
+
+            // Reset runtime variables
+            dailyRewardIndex = 0;
+            claimedLevels.Clear();
+
+            Debug.Log("All rewards and progress have been reset.");
         }
 
 

@@ -11,6 +11,7 @@ namespace RewardSystem
         public List<LevelReward> levelRewards;
 
         [Header("Daily Rewards")]
+        public double rewardDelay = 1;
         public List<Reward> dailyRewards; // List of daily rewards (ordered by day)
 
         [Header("Weekly Rewards")]
@@ -22,5 +23,13 @@ namespace RewardSystem
             public int level;
             public Reward reward; // Reference to the Reward ScriptableObject
         }
+
+        //[System.Serializable]
+        //public class DailyReward
+        //{
+        //    public double rewardDelay;
+        //    public Reward reward;
+        //}
+
     }
 }
