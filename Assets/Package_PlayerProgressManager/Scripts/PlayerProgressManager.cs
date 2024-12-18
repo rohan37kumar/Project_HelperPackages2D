@@ -17,7 +17,8 @@ namespace PlayerProgress
         private const string ExperienceKey = "Xp_";
         private const string CoinsKey = "Coins_";
         private const string GemsKey = "Gems_";
-        //private const string rewardKey = "Reward_";
+        private const string lastClaimedRewardKey = "Reward_Claim_DateTime";
+        private const string DailyRewardIndexKey = "DailyRewardIndex";
 
         #region Username
 
@@ -181,6 +182,37 @@ namespace PlayerProgress
         {
             return PlayerPrefs.GetInt(ExperienceKey);
         }
+
+        #endregion
+
+        #region Reward Tracking
+
+        public static void SetLastRewardClaimedDateTime(DateTime dateTime)
+        {
+            PlayerPrefs.SetString(lastClaimedRewardKey, dateTime.ToString("o"));
+        }
+
+        public static string GetLastRewardClaimedDateTime()
+        {
+            return PlayerPrefs.GetString(lastClaimedRewardKey);
+        }
+
+        public static void SetDailyRewardIndex(int index)
+        {
+            PlayerPrefs.SetInt(DailyRewardIndexKey, index);
+            PlayerPrefs.Save();
+        }
+
+        public static int GetDailyRewardIndex()
+        {
+            return PlayerPrefs.GetInt(DailyRewardIndexKey, 0);
+        }
+
+        public static bool HasLastRewardClaimedDateTime()
+        {
+            return PlayerPrefs.HasKey(lastClaimedRewardKey);
+        }
+
 
         #endregion
     }
