@@ -15,6 +15,8 @@ MonoBehaviour:
   levelRewards:
   - level: 0
     reward: {fileID: 11400000, guid: cb34eac9f4c264848a7ae753ce4d7256, type: 2}
+  - level: 1
+    reward: {fileID: 11400000, guid: 13c02527487e66240b729e6337affbdc, type: 2}
   dailyRewards:
   - {fileID: 11400000, guid: 8cad6e346988ac549951e2d44d37906a, type: 2}
   weeklyRewards:
