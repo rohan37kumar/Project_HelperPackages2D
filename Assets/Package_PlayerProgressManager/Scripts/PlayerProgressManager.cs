@@ -1,16 +1,21 @@
+using PlayerProgressSystem;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlayerProgress
+namespace PlayerProgressSystem
 {
-    public static class PlayerProgressManager
+    public class PlayerProgressManager
     {
         //private const string TotalLevelsCompletedKey = "MainLevelsCompleted";
         //private const string TotalSubLevelsCompletedKey = "SubLevelsCompleted";
         private const string MainLevelKeyPrefix = "MainLevel_";
+        private const string MainLevelRetryKey = "MainLevelRetry";
+        private const string MainLevelTypePrefix = "MainLevelType_";
         private const string SubLevelKeyPrefix = "SubLevel_";
+        private const string SubLevelRetryKey = "SubLevelRetry";
+        private const string SubLevelTypePrefix = "SubLevelType_";
         private const string UsernameKey = "Username";
         private const string LastLoginKey = "LastLogin";
         private const string LatestLoginKey = "LatestLogin";
@@ -19,40 +24,42 @@ namespace PlayerProgress
         private const string GemsKey = "Gems_";
         private const string lastClaimedRewardKey = "Reward_Claim_DateTime";
         private const string DailyRewardIndexKey = "DailyRewardIndex";
+        
+
+        private readonly IPlayerProgressStorage _storage;
+
+        public PlayerProgressManager(IPlayerProgressStorage storage)
+        {
+            _storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        }
+
 
         #region Username
 
         /// <summary>
         /// Set the username for the player.
         /// </summary>
-        public static void SetUsername(string username)
+        public void SetUsername(string username)
         {
             if (string.IsNullOrEmpty(username))
-            {
-                Debug.LogWarning("Username cannot be empty or null.");
-                return;
-            }
+                throw new ArgumentException("Username cannot be null or empty", nameof(username));
 
-            PlayerPrefs.SetString(UsernameKey, username);
-            PlayerPrefs.Save();
-            Debug.Log($"Username set to: {username}");
+            _storage.SetString(UsernameKey, username);
+            _storage.Save();
         }
 
         /// <summary>
         /// Get the username of the player.
         /// </summary>
-        public static string GetUsername()
-        {
-            return PlayerPrefs.GetString(UsernameKey, "Guest");
-        }
+        public string GetUsername() => _storage.GetString(UsernameKey, "Guest");
 
         /// <summary>
         /// Reset the username to default.
         /// </summary>
-        public static void ResetUsername()
+        public void ResetUsername()
         {
-            PlayerPrefs.DeleteKey(UsernameKey);
-            PlayerPrefs.Save();
+            _storage.DeleteKey(UsernameKey);
+            _storage.Save();
             Debug.Log("Username reset to default.");
         }
 
@@ -63,20 +70,34 @@ namespace PlayerProgress
         /// <summary>
         /// Call this method when a main level is completed.
         /// </summary>
-        public static void MainLevelCompleted(string mainLevelID)
+        public void MainLevelCompleted(string mainLevelID)
         {
             string mainLevelKey = MainLevelKeyPrefix + mainLevelID;
-            PlayerPrefs.SetInt(mainLevelKey, 1);
-            PlayerPrefs.Save();
+            _storage.SetInt(mainLevelKey, 1);   
+            _storage.Save();
         }
         /// <summary>
         /// Check if a specific main level is completed.
         /// </summary>
-        public static bool HasCompletedMainLevel(string mainLevelID)
+        public bool HasCompletedMainLevel(string mainLevelID)
         {
             string mainLevelKey = MainLevelKeyPrefix + mainLevelID;
-            return PlayerPrefs.GetInt(mainLevelKey, 0) == 1;
+            return _storage.GetInt(mainLevelKey, 0) == 1;
         }
+
+        public void MainLevelRetries(int retryCount)
+        {
+            _storage.SetInt(MainLevelRetryKey, retryCount);
+            _storage.Save();
+
+        }
+
+        public void MainLevelCompletedType(string type)
+        {
+            string mainLevelTypeKey = MainLevelTypePrefix + type;
+            _storage.SetString(mainLevelTypeKey, type);
+        }
+
 
         #endregion
 
@@ -85,19 +106,31 @@ namespace PlayerProgress
         /// <summary>
         /// Call this method when a sub-level is completed.
         /// </summary>
-        public static void CompleteSubLevel(string subLevelID)
+        public void CompleteSubLevel(string subLevelID)
         {
             string subLevelKey = SubLevelKeyPrefix + subLevelID;
-            PlayerPrefs.SetInt(subLevelKey, 1);
-            PlayerPrefs.Save();
+            _storage.SetInt(subLevelKey, 1);
+            _storage.Save();
         }
         /// <summary>
         /// Check if a specific sub-level is completed.
         /// </summary>
-        public static bool HasCompletedSubLevel(string subLevelID)
+        public bool HasCompletedSubLevel(string subLevelID)
         {
             string subLevelKey = SubLevelKeyPrefix + subLevelID;
-            return PlayerPrefs.GetInt(subLevelKey, 0) == 1;
+            return _storage.GetInt(subLevelKey, 0) == 1;
+        }
+
+        public void SubLevelRetries(int subRetryCount)
+        {
+            _storage.SetInt(SubLevelRetryKey, subRetryCount);
+            _storage.Save();
+        }
+
+        public void SubLevelCompletedType(string type)
+        {
+            string subLevelTypeKey = SubLevelTypePrefix + type;
+            _storage.SetString(subLevelTypeKey, type);
         }
 
         #endregion
@@ -107,110 +140,93 @@ namespace PlayerProgress
         /// Call this method to save the login timestamps.
         /// </summary>
 
-        public static void UpdateLoginTime()
+        public void UpdateLoginTime()
         {
             string currentLoginTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-            if (PlayerPrefs.HasKey(LatestLoginKey))
+            if (_storage.HasKey(LatestLoginKey))
             {
-                string previousLogin = PlayerPrefs.GetString(LatestLoginKey);
-                PlayerPrefs.SetString(LastLoginKey, previousLogin);
+                string previousLogin = _storage.GetString(LatestLoginKey);
+                _storage.SetString(LastLoginKey, previousLogin);
             }
 
-            PlayerPrefs.SetString(LatestLoginKey, currentLoginTime);
-
-            PlayerPrefs.Save();
+            _storage.SetString(LatestLoginKey, currentLoginTime);
+            _storage.Save();
         }
 
         /// <summary>
         /// Get the last login time (before the most recent login).
         /// </summary>
-        public static string GetLastLoginTime()
+        public string GetLastLoginTime()
         {
-            return PlayerPrefs.GetString(LastLoginKey, "No previous login recorded.");
+            return _storage.GetString(LastLoginKey, "No previous login recorded.");
         }
 
         /// <summary>
         /// Get the latest login time (most recent login).
         /// </summary>
-        public static string GetLatestLoginTime()
+        public string GetLatestLoginTime()
         {
-            return PlayerPrefs.GetString(LatestLoginKey, "No login recorded yet.");
+            return _storage.GetString(LatestLoginKey, "No login recorded yet.");
         }
 
         #endregion
 
-        #region Coins tracking
+        #region Currency Management
 
-        public static void UpdateCoins(int coinsCount)
+        public void UpdateCoins(int coins)
         {
-            PlayerPrefs.SetInt(CoinsKey, coinsCount);
-            PlayerPrefs.Save();
+            _storage.SetInt(CoinsKey, coins);
+            _storage.Save();
         }
 
-        public static int GetCoinsCount()
+        public int GetCoins() => _storage.GetInt(CoinsKey);
+
+        public void UpdateGems(int gems)
         {
-            return PlayerPrefs.GetInt(CoinsKey);
+            _storage.SetInt(GemsKey, gems);
+            _storage.Save();
         }
+
+        public int GetGems() => _storage.GetInt(GemsKey);
+
+        public void UpdateExperience(int xp)
+        {
+            _storage.SetInt(ExperienceKey, xp);
+            _storage.Save();
+        }
+
+        public int GetExperience() => _storage.GetInt(ExperienceKey);
 
         #endregion
 
-        #region Gems tracking
-
-        public static void UpdateGems(int gemsCount)
-        {
-            PlayerPrefs.SetInt(GemsKey, gemsCount);
-            PlayerPrefs.Save();
-        }
-
-        public static int GetGemsCount()
-        {
-            return PlayerPrefs.GetInt(GemsKey);
-        }
-
-        #endregion
-
-        #region Exp tracking
-
-        public static void UpdateExperience(int Xp)
-        {
-            PlayerPrefs.SetInt(ExperienceKey, Xp);
-            PlayerPrefs.Save();
-        }
-
-        public static int GetExperience()
-        {
-            return PlayerPrefs.GetInt(ExperienceKey);
-        }
-
-        #endregion
 
         #region Reward Tracking
 
-        public static void SetLastRewardClaimedDateTime(DateTime dateTime)
+        public void SetLastRewardClaimedDateTime(DateTime dateTime)
         {
-            PlayerPrefs.SetString(lastClaimedRewardKey, dateTime.ToString("o"));
+            _storage.SetString(lastClaimedRewardKey, dateTime.ToString("o"));
         }
 
-        public static string GetLastRewardClaimedDateTime()
+        public string GetLastRewardClaimedDateTime()
         {
-            return PlayerPrefs.GetString(lastClaimedRewardKey);
+            return _storage.GetString(lastClaimedRewardKey);
         }
 
-        public static void SetDailyRewardIndex(int index)
+        public void SetDailyRewardIndex(int index)
         {
-            PlayerPrefs.SetInt(DailyRewardIndexKey, index);
-            PlayerPrefs.Save();
+            _storage.SetInt(DailyRewardIndexKey, index);
+            _storage.Save();
         }
 
-        public static int GetDailyRewardIndex()
+        public int GetDailyRewardIndex()
         {
-            return PlayerPrefs.GetInt(DailyRewardIndexKey, 0);
+            return _storage.GetInt(DailyRewardIndexKey, 0);
         }
 
-        public static bool HasLastRewardClaimedDateTime()
+        public bool HasLastRewardClaimedDateTime()
         {
-            return PlayerPrefs.HasKey(lastClaimedRewardKey);
+            return _storage.HasKey(lastClaimedRewardKey);
         }
 
 
