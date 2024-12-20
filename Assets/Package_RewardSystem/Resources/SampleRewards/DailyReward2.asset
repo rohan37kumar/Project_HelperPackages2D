@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e452647ebb2488a4286ffb83dcea8eb6, type: 3}
-  m_Name: DailyReward
+  m_Name: DailyReward2
   m_EditorClassIdentifier: 
-  rewardID: Daily_0
-  description: Coins
-  quantity: 100
+  rewardID: Daily_1
+  description: Gems
+  quantity: 500
   icon: {fileID: 0}
-  type: 0
+  type: 1
   rewardDelivery: 0
   customData: 

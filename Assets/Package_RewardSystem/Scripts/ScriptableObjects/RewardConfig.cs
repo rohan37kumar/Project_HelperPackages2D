@@ -11,10 +11,11 @@ namespace RewardSystem
         public List<LevelReward> levelRewards;
 
         [Header("Daily Rewards")]
-        public double rewardDelay = 1;
+        public double dailyRewardDelay = 1;
         public List<Reward> dailyRewards; // List of daily rewards (ordered by day)
 
         [Header("Weekly Rewards")]
+        public double weeklyRewardDelay;
         public List<Reward> weeklyRewards; // List of daily rewards (ordered by day)
 
         [System.Serializable]

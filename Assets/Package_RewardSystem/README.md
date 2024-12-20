@@ -1,142 +1,190 @@
-# Reward System Plugin
-
-The Reward System Plugin is a modular Unity package designed to manage and distribute rewards in your game. It supports **daily rewards**, **weekly rewards**, and **level-based rewards**, making it highly flexible and easy to integrate into any Unity project.
+Here's an updated version of the `README.md` to address inconsistencies and align it better with your provided code structure and usage:  
 
 ---
 
-## Features
+# Reward System Plugin  
 
-- **Daily Rewards**: Automatically track and reward players daily.
-- **Weekly Rewards**: Manage weekly rewards with custom intervals.
-- **Level Completion Rewards**: Grant rewards for completing levels.
-- **ScriptableObject Configuration**: Use ScriptableObjects to define reward data.
-- **Event-Driven Design**: Hook into reward claim events for custom behavior.
-- **Customizable UI**: Integrate the reward system into your own UI or use the provided sample UI.
+The Reward System Plugin is a modular Unity package for managing and distributing rewards in your game. It supports **daily rewards**, **weekly rewards**, and **level-based rewards**, providing flexibility for integration into any Unity project.  
 
 ---
 
-## Installation
+## Features  
 
-1. Download the plugin as a `.unitypackage` or copy the `RewardSystem` folder into your Unity project.
-2. Ensure your project includes the following dependencies:
-   - UnityEngine.UI
-   - UnityEventSystem
-
----
-
-## Getting Started
-
-### Step 1: Add the Reward Manager
-
-1. Add the `RewardManager` component to a GameObject in your scene.
-2. Assign rewards to the `RewardManager` in the Inspector.
-
-### Step 2: Create Rewards
-
-1. Go to `Assets > Create > RewardSystem > Reward` to create a new reward.
-2. Configure the reward:
-   - **Name**: Name of the reward.
-   - **Description**: Description for UI purposes.
-   - **Value**: Numeric value (e.g., coins, XP, etc.).
-   - **Type**: Choose between `Daily`, `Weekly`, or `LevelCompletion`.
-   - **Icon**: (Optional) Assign an image to represent the reward.
-
-### Step 3: Setup the UI
-
-1. Use the `RewardUI` script for a simple integration.
-2. Assign buttons and text fields to display reward status and claim actions.
-3. Customize or replace the provided UI as needed.
+- **Daily Rewards**: Automatically track and reward players for consecutive logins.  
+- **Weekly Rewards**: Reward players for weekly participation.  
+- **Level Completion Rewards**: Grant rewards for completing levels.  
+- **ScriptableObject Configuration**: Define rewards using ScriptableObjects for intuitive setup.  
+- **Event-Driven Design**: Hook into reward claim events for custom behavior.  
+- **Customizable Delivery**: Implement custom logic for delivering rewards using `IRewardDeliveryService`.  
+- **Dependency Injection Support**: Designed to integrate seamlessly with DI frameworks like VContainer.  
 
 ---
 
-## Example Usage
+## Installation  
 
-### RewardManager Example
-
-```csharp
-using RewardSystem;
-using UnityEngine;
-
-public class RewardExample : MonoBehaviour
-{
-    [SerializeField] private RewardManager rewardManager;
-
-    private void Start()
-    {
-        // Subscribe to reward events
-        rewardManager.OnRewardClaimed += HandleRewardClaimed;
-    }
-
-    private void HandleRewardClaimed(Reward reward)
-    {
-        Debug.Log($"Reward claimed: {reward.rewardName}, Value: {reward.value}");
-        // Add your custom logic here (e.g., updating inventory or UI)
-    }
-}
-```
-
-### UI Integration Example
-
-The `RewardUI` script is included to provide basic UI for claiming rewards. You can customize this or create your own interface.
+1. Clone or download the plugin and add the `RewardSystem` folder to your Unity project.  
+2. Ensure your project includes the following dependencies:  
+   - `UnityEngine.UI`  
+   - `UnityEventSystem`  
 
 ---
 
-## File Structure
+## Getting Started  
 
-```
-RewardSystem/
-├── Scripts/
-│   ├── Reward.cs           // ScriptableObject for rewards
-│   ├── RewardManager.cs    // Core logic for managing rewards
-│   ├── RewardUI.cs         // Example UI integration
-├── Editor/
-│   ├── RewardEditor.cs     // (Optional) Custom editor for rewards
-├── Resources/
-│   ├── SampleRewards/      // Example rewards (ScriptableObjects)
-│       ├── DailyReward.asset
-│       ├── WeeklyReward.asset
-├── Documentation/
-│   ├── RewardSystemManual.md // Documentation for using the plugin
-```
+### Step 1: Add Reward Configurations  
+
+1. Go to `Assets > Create > RewardSystem > Reward` to create individual rewards.  
+2. Configure the reward properties:  
+   - **Reward ID**: Unique identifier for the reward.  
+   - **Description**: Description for UI or tooltips.  
+   - **Quantity**: Numeric value (e.g., coins, XP, etc.).  
+   - **Reward Type**: `Coins`, `Gems`, `Experience`, etc.  
+   - **Delivery Type**: Choose between `Daily`, `Weekly`, or `LevelCompletion`.  
+   - **Icon**: Optional image to represent the reward.  
+
+3. Create a `RewardConfig` ScriptableObject to manage collections of daily, weekly, and level-based rewards.  
+
+### Step 2: Setup the Dependency Injection Container  
+
+1. Add the `GameLifetimeScope` or a custom `LifetimeScope` to your scene.  
+2. Register your implementations for reward services, as shown below:  
+
+```csharp  
+using VContainer;  
+using RewardSystem;  
+
+public class GameLifetimeScope : LifetimeScope  
+{  
+    [SerializeField] private RewardConfig rewardConfig; // Assign via Unity Inspector  
+
+    protected override void Configure(IContainerBuilder builder)  
+    {  
+        builder.Register<IRewardRepository>(c => new ScriptableObjectRewardRepository(rewardConfig), Lifetime.Singleton);  
+        builder.Register<IRewardStateService, MyCustomRewardStateService>(Lifetime.Singleton);  
+        builder.Register<IRewardDeliveryService, MyCustomRewardDeliveryService>(Lifetime.Singleton);  
+        builder.Register<IRewardManager, DefaultRewardManager>(Lifetime.Singleton);  
+    }  
+}  
+```  
+
+### Step 3: Customize Delivery Logic  
+
+Implement the `IRewardDeliveryService` interface to define how rewards are delivered to players:  
+
+```csharp  
+public class MyCustomRewardDeliveryService : IRewardDeliveryService  
+{  
+    public void DeliverReward(IReward reward)  
+    {  
+        switch (reward.Type)  
+        {  
+            case RewardType.Coins:  
+                Debug.Log($"Delivered {reward.Quantity} Coins!");  
+                break;  
+            case RewardType.Gems:  
+                Debug.Log($"Delivered {reward.Quantity} Gems!");  
+                break;  
+            // Add other reward types as needed  
+        }  
+    }  
+}  
+```  
 
 ---
 
-## Advanced Configuration
+## Example Usage  
 
-### Custom Reward Types
+### Claiming Rewards  
 
-1. Extend the `RewardType` enum in `Reward.cs` to add new reward types.
-2. Modify the `RewardManager` logic to handle your new reward type.
+Use `IRewardManager` to claim rewards programmatically:  
 
-### Custom Reward Logic
+```csharp  
+using RewardSystem;  
+using UnityEngine;  
 
-Hook into the `OnRewardClaimed` event to add game-specific behavior when a reward is claimed.
+public class RewardExample : MonoBehaviour  
+{  
+    [Inject] private IRewardManager rewardManager;  
 
-```csharp
-rewardManager.OnRewardClaimed += reward => Debug.Log($"Player claimed: {reward.rewardName}");
-```
+    private void Start()  
+    {  
+        rewardManager.OnDailyRewardClaimed += HandleDailyRewardClaimed;  
+        rewardManager.ClaimDailyReward();  
+    }  
 
----
-
-## Requirements
-
-- Unity 2020.3 or higher.
-- TextMeshPro (Optional, for advanced UI customization).
-
----
-
-## Contributing
-
-If you have suggestions or improvements for the plugin, feel free to open an issue or submit a pull request on the repository.
-
----
-
-## License
-
-This plugin is licensed under the MIT License. See the `LICENSE` file for details.
+    private void HandleDailyRewardClaimed(int index, IReward reward)  
+    {  
+        Debug.Log($"Daily reward claimed: {reward.Quantity} {reward.Type}");  
+    }  
+}  
+```  
 
 ---
 
-## Support
+## File Structure  
 
-For support or inquiries, please contact [Your Email or Website].
+```  
+RewardSystem/  
+├── Scripts/  
+│   ├── Reward.cs                     // ScriptableObject definition for rewards  
+│   ├── RewardConfig.cs               // ScriptableObject for reward collections  
+│   ├── DefaultRewardManager.cs       // Core logic for managing rewards  
+│   ├── Interfaces/  
+│       ├── IReward.cs                // Reward abstraction  
+│       ├── IRewardRepository.cs      // Interface for reward data fetching  
+│       ├── IRewardStateService.cs    // Interface for reward state management  
+│       ├── IRewardDeliveryService.cs // Interface for reward delivery logic  
+├── Editor/  
+│   ├── RewardEditor.cs               // (Optional) Custom editor for rewards  
+├── Resources/  
+│   ├── SampleRewards/                // Example reward configurations  
+│       ├── DailyReward.asset  
+│       ├── WeeklyReward.asset  
+│       ├── LevelReward.asset  
+```  
+
+---
+
+## Advanced Configuration  
+
+### Custom Reward Types  
+
+1. Extend the `RewardType` enum in `Reward.cs` to add new types.  
+2. Implement the necessary delivery logic in `IRewardDeliveryService`.  
+
+### Custom Claim Logic  
+
+Hook into `IRewardManager` events to add custom behavior:  
+
+```csharp  
+rewardManager.OnLevelRewardClaimed += (level, reward) => Debug.Log($"Level {level} reward claimed: {reward.Quantity} {reward.Type}");  
+```  
+
+---
+
+## Requirements  
+
+- Unity 2020.3 or higher.  
+- TextMeshPro (Optional, for advanced UI).  
+- VContainer (Optional, for dependency injection).  
+
+---
+
+## Contributing  
+
+Contributions are welcome! Feel free to open an issue or submit a pull request.  
+
+---
+
+## License  
+
+This plugin is licensed under the MIT License. See the `LICENSE` file for details.  
+
+---
+
+## Support  
+
+For support or inquiries, contact [Your Email or Website].  
+
+--- 
+
